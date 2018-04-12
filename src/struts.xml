@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+
+
+<struts>
+
+	<package name="interceptor" extends="struts-default" namespace="/">
+
+		<!-- 配置拦截器 -->
+		<interceptors>
+			<!-- 继承了MethodFilterIntercrptor(以后都用这个) -->
+			<interceptor name="myInterception" class="com.yq.interceptor.MyInterception"></interceptor>
+		</interceptors>
+
+		<!-- 配置一个全局的结果访问(在整个工程里面只要返回login)都会到login.jsp页面 -->
+		<global-results>
+			<result name="login" type="redirect">login.jsp</result>
+		</global-results>
+
+		<!--登入 -->
+		<action name="user_*" class="com.yq.web.UserAction" method="{1}">
+
+			<!-- 登入成功 -->
+			<result name="index" type="chain">index_index</result>
+
+			<!-- 引入自定义拦截器 -->
+			<interceptor-ref name="myInterception">
+				<!-- 设置不拦截登入请求(不拦截那一个请求) -->
+				<param name="includeMethods">user_login</param>
+			</interceptor-ref>
+
+			<!-- 引入默认的拦截器 -->
+			<interceptor-ref name="defaultStack" />
+
+		</action>
+
+		<!-- 配置登入成功之后的功能 -->
+		<action name="index_*" class="com.yq.web.IndexAction" method="{1}">
+			<!-- 引入拦截器 -->
+			<interceptor-ref name="myInterception" />
+			<!-- 引入默认的拦截器 -->
+			<interceptor-ref name="defaultStack" />
+		</action>
+
+	</package>
+
+	<!-- 值栈操作 -->
+	<package name="stack" extends="struts-default" namespace="/">
+		<!--root  -->
+		<action name="test_*" class="com.yq.ognl.TestValueStackRoot" method="{1}">
+			<result name="testStack">testOgnl.jsp</result>
+		</action>
+		
+		<!-- context -->
+		<action name="test1_*" class="com.yq.ognl.TestValueStackContext" method="{1}">
+			<result name="context">testOgnl2.jsp</result>
+		</action>
+		
+	</package>
+
+
+</struts>
